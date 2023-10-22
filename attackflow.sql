@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- 主机： 127.0.0.1
--- 生成日期： 2023-10-19 08:18:48
+-- 生成日期： 2023-10-22 10:48:34
 -- 服务器版本： 10.4.11-MariaDB
 -- PHP 版本： 7.4.5
 
@@ -32,6 +32,7 @@ CREATE TABLE `annotations` (
   `tags` varchar(100) DEFAULT NULL,
   `user` int(11) DEFAULT NULL,
   `document` int(20) DEFAULT NULL,
+  `document_no` varchar(100) DEFAULT NULL,
   `referenced_text` int(11) DEFAULT NULL,
   `createdAt` datetime DEFAULT current_timestamp(),
   `updatedAt` datetime NOT NULL DEFAULT current_timestamp()
@@ -41,9 +42,17 @@ CREATE TABLE `annotations` (
 -- 转存表中的数据 `annotations`
 --
 
-INSERT INTO `annotations` (`id`, `tags`, `user`, `document`, `referenced_text`, `createdAt`, `updatedAt`) VALUES
-(4, 'T1566.001,T1566.002', 16, 17, 3, '2023-10-18 07:57:20', '2023-10-18 07:57:20'),
-(5, 'T1566.008', 16, 18, 4, '2023-10-18 08:00:07', '2023-10-18 08:00:07');
+INSERT INTO `annotations` (`id`, `tags`, `user`, `document`, `document_no`, `referenced_text`, `createdAt`, `updatedAt`) VALUES
+(4, 'T1566.001,T1566.002', 16, 17, '20231018154829', 3, '2023-10-18 07:57:20', '2023-10-18 07:57:20'),
+(5, 'T1566.008', 16, 18, '20231018154829', 4, '2023-10-18 08:00:07', '2023-10-18 08:00:07'),
+(6, 'T1566.010', 16, 20, '20231022154521', 5, '2023-10-22 07:49:22', '2023-10-22 07:49:22'),
+(7, 'T1566.008,T1566.009', 16, 21, '20231022154521', 6, '2023-10-22 07:52:13', '2023-10-22 07:52:13'),
+(8, 'T1566.010', 16, 22, '20231022154521', 7, '2023-10-22 07:53:05', '2023-10-22 07:53:05'),
+(9, 'T1566.008', 16, 23, '20231022154521', 8, '2023-10-22 07:53:31', '2023-10-22 07:53:31'),
+(10, 'T1566.009', 16, 24, '20231022154521', 9, '2023-10-22 07:55:01', '2023-10-22 07:55:01'),
+(11, 'T1566.009', 16, 25, '20231022154521', 10, '2023-10-22 07:55:56', '2023-10-22 07:55:56'),
+(12, 'T1566.009', 16, 26, '20231022154521', 11, '2023-10-22 07:58:24', '2023-10-22 07:58:24'),
+(13, 'T1566.009', 16, 27, '20231022154521', 12, '2023-10-22 08:14:32', '2023-10-22 08:14:32');
 
 -- --------------------------------------------------------
 
@@ -71,8 +80,17 @@ CREATE TABLE `documents` (
 
 INSERT INTO `documents` (`id`, `document_no`, `document_name`, `version_number`, `content`, `path`, `uploader_id`, `is_accepted`, `status`, `createdAt`, `updatedAt`) VALUES
 (13, '20231018154829', '1697615307920-incident01.pdf', 1, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697615307920-incident01.pdf', 16, 1, 1, '2023-10-18 07:48:29', '2023-10-18 07:48:29'),
-(17, '20231018154829', '1697615307920-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697615307920-incident01.pdf', 16, 1, 0, '2023-10-18 07:57:20', '2023-10-18 07:57:20'),
-(18, '20231018154829', '1697615307920-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697615307920-incident01.pdf', 16, 1, 0, '2023-10-18 08:00:07', '2023-10-18 08:00:07');
+(17, '20231018154829', '1697615307920-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697615307920-incident01.pdf', 16, 1, 1, '2023-10-18 07:57:20', '2023-10-18 07:57:20'),
+(18, '20231018154829', '1697615307920-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697615307920-incident01.pdf', 16, 1, 1, '2023-10-18 08:00:07', '2023-10-18 08:00:07'),
+(19, '20231022154521', '1697960720032-incident01.pdf', 1, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697960720032-incident01.pdf', 16, 1, 1, '2023-10-22 07:45:21', '2023-10-22 07:45:21'),
+(20, '20231022154521', '1697960720032-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697960720032-incident01.pdf', 16, 1, 1, '2023-10-22 07:49:22', '2023-10-22 08:46:32'),
+(21, '20231022154521', '1697960720032-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697960720032-incident01.pdf', 16, 1, 1, '2023-10-22 07:52:13', '2023-10-22 08:47:35'),
+(22, '20231022154521', '1697960720032-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697960720032-incident01.pdf', 16, 1, 2, '2023-10-22 07:53:05', '2023-10-22 08:47:37'),
+(23, '20231022154521', '1697960720032-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697960720032-incident01.pdf', 16, 1, 1, '2023-10-22 07:53:31', '2023-10-22 08:47:46'),
+(24, '20231022154521', '1697960720032-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697960720032-incident01.pdf', 16, 1, 2, '2023-10-22 07:55:01', '2023-10-22 08:47:49'),
+(25, '20231022154521', '1697960720032-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697960720032-incident01.pdf', 16, 1, 0, '2023-10-22 07:55:56', '2023-10-22 07:55:56'),
+(26, '20231022154521', '1697960720032-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697960720032-incident01.pdf', 16, 1, 0, '2023-10-22 07:58:24', '2023-10-22 07:58:24'),
+(27, '20231022154521', '1697960720032-incident01.pdf', 2, NULL, 'C:\\Users\\13427\\Desktop\\学生项目\\attackflow_01(1)\\attackflow_01\\attackflow_backend\\routes\\uploadedFiles\\1697960720032-incident01.pdf', 16, 1, 0, '2023-10-22 08:14:32', '2023-10-22 08:14:32');
 
 -- --------------------------------------------------------
 
@@ -94,7 +112,15 @@ CREATE TABLE `referenced_texts` (
 
 INSERT INTO `referenced_texts` (`id`, `referenced_text`, `document`, `createdAt`, `updatedAt`) VALUES
 (3, 'our website monitoring system alarmed us with an abnormal \ndatabase query request. ', 17, '2023-10-18 07:57:20', '2023-10-18 07:57:20'),
-(4, 'he  attacker  managed  to  bypass  our  security  measures  and  successfully  extracted \napproximately 100 user records from the user database', 18, '2023-10-18 08:00:07', '2023-10-18 08:00:07');
+(4, 'he  attacker  managed  to  bypass  our  security  measures  and  successfully  extracted \napproximately 100 user records from the user database', 18, '2023-10-18 08:00:07', '2023-10-18 08:00:07'),
+(5, 'sis raised suspicions of malicious activity, which led \nus to conduct a thorough investigation. The investigation confirme', 20, '2023-10-22 07:49:22', '2023-10-22 07:49:22'),
+(6, ' an input form on our website, aiming to access and \nextract user data stored in our database. ', 21, '2023-10-22 07:52:13', '2023-10-22 07:52:13'),
+(7, ' on  their  accounts.  Additionally,  we  enhanced  our \nmonitoring system to facilitate quick', 22, '2023-10-22 07:53:05', '2023-10-22 07:53:05'),
+(8, 't an attacker tried to exploit our system by \nsubmitting malicious SQL code through an input form on our website, aiming to access and \nextract user data stored in our database. \n ', 23, '2023-10-22 07:53:31', '2023-10-22 07:53:31'),
+(9, 'ng system alarmed us with an abnormal \ndatabase query request. Our initial analysis raised suspicions of malicious activity, which led \nus to conduct a thorough investigation. The investigation confirmed that we were under a \nSQL injection attack. It was discovered that an attacker tri', 24, '2023-10-22 07:55:01', '2023-10-22 07:55:01'),
+(10, 'ddresses, which posed a', 25, '2023-10-22 07:55:56', '2023-10-22 07:55:56'),
+(11, 'ctivity, which led \nus to conduct a thorough investigation. The investigation confirmed that we were under a \nSQL injection attack. It was discovered that an attacker tried to exploit our system by', 26, '2023-10-22 07:58:24', '2023-10-22 07:58:24'),
+(12, 'onfirmed that we were under a \nSQL injection attack. It was discovered that an attacker tried to exploit our s', 27, '2023-10-22 08:14:32', '2023-10-22 08:14:32');
 
 -- --------------------------------------------------------
 
@@ -151,7 +177,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `account`, `username`, `password`, `phone`, `email`, `is_admin`, `astatus`, `createdAt`, `updatedAt`) VALUES
-(15, '18825110242', '', 'Aa123321', '18825110242', '13427512743@qq.com', 1, 1, '2023-10-16 06:44:33', '2023-10-17 07:36:22'),
+(15, '18825110242', '', 'Aa123321', '18825110242', '13427512743@qq.com', 1, 1, '2023-10-16 06:44:33', '2023-10-19 06:41:25'),
 (16, '18825110241', '', 'Aa123321', '18825110241', '13427512743@qq.com', 0, 1, '2023-10-16 06:44:33', '2023-10-17 08:06:11'),
 (17, '18825110243', '', 'Aa123321', '18825110243', '13457512743@qq.com', 0, 2, '2023-10-16 06:44:33', '2023-10-17 08:06:22'),
 (18, '18825110244', '', 'Aa123321', '18825110243', '13457512743@qq.com', 0, 2, '2023-10-16 06:44:33', '2023-10-17 08:06:22'),
@@ -199,19 +225,19 @@ ALTER TABLE `users`
 -- 使用表AUTO_INCREMENT `annotations`
 --
 ALTER TABLE `annotations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- 使用表AUTO_INCREMENT `documents`
 --
 ALTER TABLE `documents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- 使用表AUTO_INCREMENT `referenced_texts`
 --
 ALTER TABLE `referenced_texts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- 使用表AUTO_INCREMENT `tags`

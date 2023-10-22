@@ -11,19 +11,19 @@
       <div class="detail-content">
         <!-- Basic Information -->
         <div class="basic-info">
-          <h2>{{ post.name }}</h2>
-          <p>Date: {{ post.uploadDate }}</p>
-          <p>Author: {{ post.author }}</p>
-          <p>Annotator: {{ post.annotator }}</p>
-          <p>Description: {{ post.description }}</p>
+          <h2>{{ documentslist.document_name }}</h2>
+          <p>Date: {{ documentslist.updatedAt }}</p>
+          <p>Author: {{ documentslist.account }}</p>
+          <p>Annotator: {{documentslist.account }}</p>
+          <p>Description: {{ documentslist.referenced_text }}</p>
 
           <!-- 链式表格部分 -->
-          <div v-if="annotationData">
-            <!-- 由后端提供的链式表格内容 -->
+          <!--div v-if="annotationData">
+            
           </div>
           <div v-else class="not-found">
             Database Not Found
-          </div>
+          </div-->
         </div>
 
 
@@ -65,16 +65,44 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref,reactive } from 'vue';
+import { useRoute } from 'vue-router';
+import axios from 'axios';
 
-// 示例数据
-const post = ref({
-  name: "Attack 1",
-  uploadDate: "2023-09-01",
-  author: "Author A",
-  annotator: "Annotator X",
-  description: "Description for Attack 1"
+const route = useRoute();
+
+const params = ref(route.params || "");
+console.log("params:"+JSON.stringify(params));
+console.log("params:"+JSON.parse(JSON.stringify(params))._value.id);
+const document_id = params._value.id
+let form = reactive({
+  id: document_id
 });
+const post = ref({
+  name: "",
+  uploadDate: "",
+  author: "",
+  annotator: "",
+  description: ""
+});
+
+const documentslist = ref([])
+
+
+axios.post('http://localhost:9999/documents/documentsbyid', form)
+  .then(res => {
+    //successfully login
+    console.log(res.data.documents[0]);
+    documentslist.value = res.data.documents[0]
+    post.name = res.data.documents[0].document_name
+    post.uploadDate = res.data.documents[0].updatedAt
+    console.log(post);
+
+  })
+  .catch(error => {
+    console.log(error);
+  })
+// 示例数据
 
 const versions = ['v1.0', 'v1.1', 'v2.0']; // 示例
 const comments = [
@@ -109,7 +137,8 @@ const comments = [
 }
 
 .detail-content-wrapper {
-  padding-top: 120px;  /* 根据头部的大小进行调整 */
+  padding-top: 120px;
+  /* 根据头部的大小进行调整 */
 }
 
 /* 详情页内容 */
@@ -120,8 +149,10 @@ const comments = [
 }
 
 .basic-info {
-  width: 70%;  /* 设置左侧基本信息的宽度 */
-  margin-right: 5%;  /* 与右侧部分的间隔 */
+  width: 70%;
+  /* 设置左侧基本信息的宽度 */
+  margin-right: 5%;
+  /* 与右侧部分的间隔 */
 }
 
 .not-found {
@@ -141,14 +172,18 @@ h2 {
 .right-section {
   width: 25%;
   padding: 20px;
-  background-color: #f2f2f2; /* 右侧灰色背景 */
+  background-color: #f2f2f2;
+  /* 右侧灰色背景 */
   border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   position: sticky;
-  top: 120px; /* 根据头部的大小进行调整 */
+  top: 120px;
+  /* 根据头部的大小进行调整 */
 }
 
-.version-select, .download-section, .comments-section {
+.version-select,
+.download-section,
+.comments-section {
   margin-bottom: 20px;
 }
 
@@ -157,7 +192,9 @@ h2 {
   margin-bottom: 10px;
 }
 
-.download-section button, .annotation-btn, .comments-section button {
+.download-section button,
+.annotation-btn,
+.comments-section button {
   display: block;
   width: 100%;
   padding: 10px;
@@ -171,7 +208,8 @@ h2 {
 }
 
 .annotation-btn {
-  background-color: rgb(98, 29, 186); /* 紫色按钮 */
+  background-color: rgb(98, 29, 186);
+  /* 紫色按钮 */
 }
 
 .comments-section textarea {
@@ -192,6 +230,4 @@ h2 {
   display: block;
   font-size: 0.8em;
   color: #666;
-}
-
-</style>
+}</style>

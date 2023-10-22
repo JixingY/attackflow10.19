@@ -257,7 +257,8 @@ router.post('/adddocument', async function (req, res, next) {
       uploader_id: req.body.uploader_id,
       version_number: req.body.version_number,
       path: req.body.path,
-      document_no:document_no
+      document_no:document_no,
+      status:1
     });
     console.log(documents);
     if (documents) {
@@ -271,48 +272,6 @@ router.post('/adddocument', async function (req, res, next) {
   }
 });
 
-router.post('/addAnnotation', async function (req, res, next) {
-  // 在响应中设置CORS头
-  res.header('Access-Control-Allow-Origin', '*'); // 允许所有来源
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // 允许的请求头
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // 允许的HTTP方法
-  
 
-  try {
-
-    const documents = await models.Documents.findOne({
-      where: { id: req.body.document_id }
-    });
-    const documents2 = await models.Documents.create({
-      document_name: documents.document_name,
-      uploader_id: req.body.uid,
-      version_number: documents.version_number +1,
-      path: req.body.path,
-      document_no:req.body.document_no,
-    });
-
-    const referencedTexts = await models.Referenced_texts.create({
-      document: documents2.id,
-      referenced_text: req.body.referenced_text,
-    });
-    
-    const annotations = await models.Annotations.create({
-      document: documents2.id,
-      user: req.body.uid,
-      tags: req.body.tags,
-      referenced_text: referencedTexts.id,
-    });
-    
-    console.log(annotations);
-    if (annotations && referencedTexts && documents2) {
-      res.json({ success: true, message: 'successful', documents: documents2 });
-    } else {
-      res.status(401).json({ success: false, message: 'not found' });
-    }
-  } catch (error) {
-    console.error('Error addtags:', error);
-    res.status(500).json({ error: 'An error occurred' });
-  }
-});
 
 module.exports = router;

@@ -10,6 +10,24 @@
         <p v-html="highlightedText"></p>
       </div>
     </div>
+    <div style="width: 500px;">
+      <h2>annotations</h2>
+      <ul>
+        <li v-for="(annotations,index) in annotations" :key="index" style="padding:10px;list-style: none;background: #edecec;">
+          <div>
+            <p>{{ annotations.referenced_text }}</p>
+            <p style="margin-top: 10px;">
+              <span style="background: rgb(43, 104, 236);
+    padding: 5px;
+    color: rgb(255, 255, 255);
+    border-radius: 10px;"> {{ annotations.tags }}</span>
+             
+            </p>
+          </div>
+          
+        </li>
+      </ul>
+    </div>
     <div class="chatgpt-section" style="display: none;">
       <h2>ChatGPT Advice</h2>
       <textarea v-model="chatGPTResponse" readonly></textarea>
@@ -74,6 +92,7 @@ export default {
     const selectedText = ref("");
     const chatGPTResponse = ref("");
     const EditannotationVisible = ref(false);
+    const annotations =  ref([]);
 
     let form = reactive({
       referenced_text: "",
@@ -113,11 +132,13 @@ export default {
       form['tags'] = huixianname.value
       form['path'] = filePath.value
       form['document_id'] = document_id.value
-      axios.post('http://localhost:9999/addAnnotation',form)
+      axios.post('http://localhost:9999/documents/addAnnotation',form)
         .then(res => {
           console.log(res.data.documents)
           EditannotationVisible.value = false;
-          window.location.reload()
+          annotations.value = res.data.annotations
+          console.log(annotations.value )
+          //window.location.reload()
 
         })
         .catch(error => {
@@ -228,7 +249,7 @@ export default {
       },
       huixianname,
       handleClear,saveadd,
-      rData, handleNodeClick, huixianarr
+      rData, handleNodeClick, huixianarr,annotations
     };
   },
 };

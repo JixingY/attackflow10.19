@@ -1,12 +1,12 @@
 <template>
   <router-link :to="`/database/${post.id}`">
     <div>
-      <h3 class="post-name">{{ post.name }}</h3>
+      <h3 class="post-name">{{ post.document_name }}</h3>
       <p class="post-details">
-        <span>{{ post.uploadDate }}</span>
-        <span>{{ post.author }}</span>
-        <span>{{ post.annotator }}</span>
-        <span>{{ post.description }}</span>
+        <span>{{ post.updatedAt }}</span>
+        <span>{{ post.account }}</span>
+        <span>{{ post.referenced_text }}</span>
+        <span>{{ post.tags }}</span>
       </p>
     </div>
   </router-link>

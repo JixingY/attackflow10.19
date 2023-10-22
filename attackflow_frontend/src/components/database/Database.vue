@@ -15,7 +15,7 @@
     </div>
 
     <ul class="posts-list">
-      <li v-for="post in posts" :key="post.id">
+      <li v-for="post in documentslist" :key="post.id">
         <Post :post="post" />
       </li>
     </ul>
@@ -31,7 +31,20 @@ import { ref } from 'vue';
 import Header from "@/components/home/Header.vue";
 import Post from './Posts.vue';
 
+import axios from 'axios';
 
+const documentslist = ref([])
+axios.post('http://localhost:9999/documents/documents')
+  .then(res => {
+    //successfully login
+    console.log(res.data.documents);
+    documentslist.value = res.data.documents
+    console.log(documentslist.value);
+
+  })
+  .catch(error => {
+    console.log(error);
+  })
 const posts = [
   // 示例数据
   {
@@ -84,7 +97,7 @@ const posts = [
   },
 ];
 
-const totalPages = Math.ceil(posts.length / 5);
+const totalPages = Math.ceil(documentslist.value.length / 5);
 const currentPage = ref(1);
 </script>
 

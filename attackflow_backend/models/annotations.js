@@ -17,7 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     tags: DataTypes.STRING,
     user: DataTypes.STRING,
     document: DataTypes.STRING,
-    referenced_text : DataTypes.STRING
+    referenced_text : DataTypes.STRING,
+    document_no : DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Annotations',

@@ -11,7 +11,7 @@
         <el-main id="main">
           Pending Requests
           <div class="handle-box" style="margin-top: 20px;">
-           
+
           </div>
           <el-table v-loading="loading" :data="documentslist" row-key="id">
             <el-table-column prop="id" label="ID"></el-table-column>
@@ -36,17 +36,26 @@
             </el-table-column>
           </el-table>
 
-          <el-dialog title="view annotions" v-model="editVisible" width="40%">
-            <el-form label-width="70px">
-              <el-form-item label="name">
-                <el-input v-model="form.name" style="width:40%;"></el-input>
+          <el-dialog title="view annotions" v-model="editVisible" width="60%">
+            <el-form label-width="100px">
+              <el-form-item label="document_no">
+                ：<el-input v-model="annotations.document_no" style="width:40%;"></el-input>
+              </el-form-item>
+              <el-form-item label="document_name">
+                ：<el-input v-model="form.document_name" style="width:40%;"></el-input>
+              </el-form-item>
+              <el-form-item label="referenced_text">
+                ：<span>{{ referencedTexts.referenced_text }}</span>
+              </el-form-item>
+              <el-form-item label="annotator">
+                ：<el-input v-model="user.account" style="width:40%;"></el-input>
               </el-form-item>
             </el-form>
             <template #footer>
               <span class="dialog-footer">
                 <el-button @click="editVisible = false">cancel</el-button>
-                <el-button type="primary" @click="saveAdd">approve</el-button>
-                <el-button type="primary" @click="saveAdd">reject</el-button>
+                <el-button type="primary" @click="approve">approve</el-button>
+                <el-button type="primary" @click="reject">reject</el-button>
               </span>
             </template>
           </el-dialog>
@@ -62,10 +71,11 @@ import Aside from "@/components/admin/Aside.vue";
 import Header from "@/components/admin/Header.vue";
 import axios from 'axios';
 const documentslist = ref([])
+
 let form = reactive({
   id: "",
-  document:"",
-  referenced_text:""
+  document_name: "",
+  referenced_text: ""
 });
 const editVisible = ref(false);
 const addVisible = ref(false);
@@ -81,23 +91,62 @@ axios.post('http://localhost:9999/documents/documents1')
   .catch(error => {
     console.log(error);
   })
+const annotations = ref([])
+const referencedTexts = ref([])
+const user = ref([])
 const handleEdit = (index, row) => {
-  console.log(row)
+  //console.log(row)
   Object.keys(row).forEach((item) => {
     form[item] = row[item];
   });
-  axios.post('http://localhost:9999/documents/getannotions',form)
+  axios.post('http://localhost:9999/documents/getannotions', form)
+    .then(res => {
+      //successfully login
+      console.log(res.data);
+      annotations.value = res.data.annotations
+      referencedTexts.value = res.data.referencedTexts
+      user.value = res.data.user
+      console.log(referencedTexts.value);
+      editVisible.value = true;
+    })
+    .catch(error => {
+      console.log(error);
+    })
+
+
+
+};
+const approve = (index, row) => {
+
+  axios.post('http://localhost:9999/documents/approveannotions', form)
+    .then(res => {
+      //successfully login
+      console.log(res.data);
+      editVisible.value = false;
+      window.location.reload()
+    })
+    .catch(error => {
+      console.log(error);
+    })
+
+
+
+};
+const reject = (index, row) => {
+
+axios.post('http://localhost:9999/documents/rejectannotions', form)
   .then(res => {
     //successfully login
-    console.log(res.data.annotations);
-    editVisible.value = true;
+    console.log(res.data);
+    editVisible.value = false;
+    window.location.reload()
   })
   .catch(error => {
     console.log(error);
   })
 
-  
-  
+
+
 };
 
 const addTags = () => {
@@ -109,16 +158,16 @@ const addTags = () => {
 const saveAdd = () => {
 
 
-axios.post('http://localhost:9999/addtags', form)
-  .then(res => {
-    console.log(res.data.tags);
-    documentslist.value = res.data.tags
-    addVisible.value = false;
+  axios.post('http://localhost:9999/addtags', form)
+    .then(res => {
+      console.log(res.data.tags);
+      documentslist.value = res.data.tags
+      addVisible.value = false;
 
-  })
-  .catch(error => {
-    console.log(error);
-  })
+    })
+    .catch(error => {
+      console.log(error);
+    })
 };
 const saveEdit = () => {
 
