@@ -29,6 +29,8 @@ app.options('*', cors({
   credentials: true
 }));
 
+app.use('/static', express.static(path.join(__dirname, 'routes/uploadedFiles')));
+
 app.use(bodyParser.json()); // 用于解析JSON请求体
 app.use(bodyParser.urlencoded({ extended: true })); // 用于解析URL编码的请求体
 app.use('/chatgpt', chatgptRouter);

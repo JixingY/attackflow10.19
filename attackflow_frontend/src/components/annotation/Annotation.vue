@@ -4,8 +4,20 @@
       <img src="@/assets/images/Logo.png" alt="">
       <div class="centered-content">
         <span><strong>Attack Flow</strong></span>
-        <button class="icon-button" title="Highlight Color"><img src="@/assets/marker.png" alt="Edit Icon"></button>
-        <button class="icon-button" title="Download Meta"><img src="@/assets/download.png" alt="Download Icon"></button>
+        <div class="dropdown">
+          <button class="icon-button" title="Highlight Color" @click="toggleDropdown">
+            <img src="@/assets/marker.png" alt="Edit Icon">
+          </button>
+          <div v-if="showDropdown" class="dropdown-content">
+            <button class="color-option" style="background-color: blue;"><img src="@/assets/marker.png" alt="Blue Icon"></button>
+            <button class="color-option" style="background-color: red;"><img src="@/assets/marker.png" alt="Red Icon"></button>
+            <button class="color-option" style="background-color: yellow;"><img src="@/assets/marker.png" alt="Yellow Icon"></button>
+            <button class="color-option" style="background-color: pink;"><img src="@/assets/marker.png" alt="Pink Icon"></button>
+          </div>
+        </div>
+        <button class="icon-button" title="Download Meta" @click="downloadMeta">
+          <img src="@/assets/download.png" alt="Download Icon">
+        </button>
       </div>
     </div>
   </div>
@@ -187,6 +199,19 @@ export default {
       huixianname2.value = '';
     };
 
+    const downloadMeta = () => {
+      window.location.href = "http://localhost:9999/static/Meta.json";
+    };
+
+    async function saveToMetaJson() {
+      try {
+        await axios.post('/path/to/backend/endpoint', { metaContent: chatGPTResponse.value });
+        console.log('Successfully saved to Meta.json');
+      } catch (error) {
+        console.error('Error saving to Meta.json:', error);
+      }
+    }
+
     async function askChatGPT() {
       try {
         const response = await axios.post('http://localhost:9999/chatgpt/ask', {
@@ -242,9 +267,10 @@ export default {
     const openEditannotation = () => {
       EditannotationVisible.value = true;
     };
-
-
-
+    const showDropdown = ref(false);
+    const toggleDropdown = () => {
+      showDropdown.value = !showDropdown.value;
+    };
     return {
       fileContent,
       keywords,
@@ -264,7 +290,10 @@ export default {
       },
       huixianname,
       handleClear,saveadd,
-      rData, handleNodeClick, huixianarr,annotations
+      rData, handleNodeClick, huixianarr,annotations,
+      showDropdown,
+      toggleDropdown,
+      downloadMeta
     };
   },
 };
@@ -416,6 +445,39 @@ button.save-button {
 /* Just to ensure there is some space between the text and the buttons */
 .centered-content span {
   margin-right: 10px;
+}
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 60px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.dropdown-content .color-option {
+  color: white;
+  padding: 4px 6px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content .color-option:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.color-option img {
+  width: 80%;
+  height: 80%;
 }
 
 </style>
