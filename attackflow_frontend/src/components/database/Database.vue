@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-header>
-      <Header/>
+      <Header />
     </el-header>
 
     <div class="search-container">
@@ -99,6 +99,9 @@ const posts = [
 
 const totalPages = Math.ceil(documentslist.value.length / 5);
 const currentPage = ref(1);
+
+
+
 </script>
 
 <style scoped>

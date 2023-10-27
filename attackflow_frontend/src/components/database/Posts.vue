@@ -1,22 +1,30 @@
 <template>
-  <router-link :to="`/database/${post.id}`">
-    <div>
+  <!--router-link :to="`/database/${post.id}`"-->
+    <div @click="toDetail(post)">
       <h3 class="post-name">{{ post.document_name }}</h3>
       <p class="post-details">
         <span>{{ post.updatedAt }}</span>
         <span>{{ post.account }}</span>
-        <span>{{ post.referenced_text }}</span>
-        <span>{{ post.tags }}</span>
+        <!--span>{{ post.referenced_text }}</span>
+        <span>{{ post.tags }}</span-->
       </p>
     </div>
-  </router-link>
+  <!--/router-link-->
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router';
+import router from '@/router';
 // use props to receive post data
 const props = defineProps({
   post: Object
 });
+const toDetail = (post) => {
+  router.push({
+    name: 'Detail',
+    query: { filePath: post.path, document_no: post.document_no, document_id: post.id }
+  });
+};
 </script>
 
 <style scoped>

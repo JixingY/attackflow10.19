@@ -91,8 +91,10 @@ const routes = [
         props: true,
     },
     {
-        path: '/database/:id',
-        component: Detail
+        path: '/detail',
+        name: 'Detail',
+        component: Detail,
+        props: true,
     }
 
 

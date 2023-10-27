@@ -22,9 +22,9 @@ router.post('/documents', async function (req, res, next) {
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // 允许的HTTP方法
 
   try {
-    sql = 'SELECT ts.`id`, ts.`document_no`, `document_name`, `version_number`, `content`, `path`, `uploader_id`, `is_accepted`, ts.`status`, ts.`createdAt`, ts.`updatedAt`,xt.referenced_text,ns.tags,rs.account FROM `documents` ts INNER JOIN `annotations` ns on '
-    +'ts.id=ns.document INNER JOIN `users` rs on rs.id=ts.uploader_id INNER JOIN `referenced_texts` xt on xt.id=ns.referenced_text'
-    +' where ts.status=1'
+    sql = 'SELECT ts.`id`, ts.`document_no`, `document_name`, `version_number`, `content`, `path`, `uploader_id`, `is_accepted`, ts.`status`, ts.`createdAt`, ts.`updatedAt`,rs.account FROM `documents` ts  '
+    +' INNER JOIN `users` rs on rs.id=ts.uploader_id'
+    +' where ts.status=1 and ts.version_number=1'
     connection.query(sql, function (error, results, fields) {
       if (error) throw error;
       console.log(results)
@@ -53,6 +53,33 @@ router.post('/documentsbyid', async function (req, res, next) {
     sql = 'SELECT ts.`id`, ts.`document_no`, `document_name`, `version_number`, `content`, `path`, `uploader_id`, `is_accepted`, ts.`status`, ts.`createdAt`, ts.`updatedAt`,xt.referenced_text,ns.tags,rs.account FROM `documents` ts INNER JOIN `annotations` ns on '
     +'ts.id=ns.document INNER JOIN `users` rs on rs.id=ts.uploader_id INNER JOIN `referenced_texts` xt on xt.id=ns.referenced_text'
     +' where ts.status=1 and ts.id = '+req.body.id;
+    connection.query(sql, function (error, results, fields) {
+      if (error) throw error;
+      console.log(results)
+      documents = results;
+      if (documents) {
+
+        res.json({ success: true, message: 'successful', documents: documents });
+      } else {
+        res.status(401).json({ success: false, message: 'not found' });
+      }
+    });
+  } catch (err) {
+    console.error('Error logging:', err);
+    res.status(500).json({ success: false, error: 'An error occurred' });
+  }
+});
+
+router.post('/documentsbyno', async function (req, res, next) {
+  // 在响应中设置CORS头
+  res.header('Access-Control-Allow-Origin', '*'); // 允许所有来源
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // 允许的请求头
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // 允许的HTTP方法
+
+  try {
+    sql = 'SELECT ts.`id`, ts.`document_no`, `document_name`, `version_number`, `content`, `path`, `uploader_id`, `is_accepted`, ts.`status`, ts.`createdAt`, ts.`updatedAt`,xt.referenced_text,ns.tags,rs.account FROM `documents` ts INNER JOIN `annotations` ns on '
+    +'ts.id=ns.document INNER JOIN `users` rs on rs.id=ts.uploader_id INNER JOIN `referenced_texts` xt on xt.id=ns.referenced_text'
+    +' where ts.status=1 and ts.document_no = '+req.body.document_no;
     connection.query(sql, function (error, results, fields) {
       if (error) throw error;
       console.log(results)
@@ -197,7 +224,7 @@ router.post('/addAnnotation', async function (req, res, next) {
       referenced_text: referencedTexts.id,
       document_no:req.body.document_no,
     });
-    sql = 'SELECT ns.`id`, `tags`, `user`, ns.`document`, ts.`document_no`, ts.`referenced_text`, ns.`createdAt`, ns.`updatedAt` FROM `annotations` ns INNER JOIN `referenced_texts` ts on ts.id= ns.referenced_text '
+    sql = 'SELECT ns.`id`, `tags`, `user`, ns.`document`, ns.`document_no`, ts.`referenced_text`, ns.`createdAt`, ns.`updatedAt` FROM `annotations` ns INNER JOIN `referenced_texts` ts on ts.id= ns.referenced_text '
     +' where ns.document_no = ' + req.body.document_no
     connection.query(sql, function (error, results, fields) {
       if (error) throw error;

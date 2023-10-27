@@ -32,7 +32,7 @@
                 </el-button>
                 <!--el-button type="text" icon="el-icon-delete" class="red"
                     @click="handleDelete(scope.$index, scope.row)">delete</el-button-->
-              </template>
+                                </template>
             </el-table-column>
           </el-table>
 

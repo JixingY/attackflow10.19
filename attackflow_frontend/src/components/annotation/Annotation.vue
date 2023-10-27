@@ -1,32 +1,47 @@
 <template>
+  <div class="header">
+    <div class="header-content">
+      <img src="@/assets/images/Logo.png" alt="">
+      <div class="centered-content">
+        <span><strong>Attack Flow</strong></span>
+        <button class="icon-button" title="Highlight Color"><img src="@/assets/marker.png" alt="Edit Icon"></button>
+        <button class="icon-button" title="Download Meta"><img src="@/assets/download.png" alt="Download Icon"></button>
+      </div>
+    </div>
+  </div>
   <div class="text-labeling">
     <div class="text-display">
 
-      <div style="position: fixed;top: 50px;z-index: 999;">
-        <h2>Incident Report</h2>
+      <div style="position: fixed;top: 100px;z-index: 999;">
         <button class="save-button" @click="openEditannotation">Edit annotation</button>
       </div>
       <div class="highlighted-text" @mouseup="highlightText" id="htext" style="margin-top: 120px;">
         <p v-html="highlightedText"></p>
       </div>
     </div>
+    <div class="chatgpt-section">
+      <h2>ChatGPT Meta</h2>
+      <textarea v-model="chatGPTResponse" readonly></textarea>
+    </div>
     <div style="width: 500px;">
-      <h2>annotations</h2>
-      <ul>
-        <li v-for="(annotations,index) in annotations" :key="index" style="padding:10px;list-style: none;background: #edecec;">
-          <div>
-            <p>{{ annotations.referenced_text }}</p>
-            <p style="margin-top: 10px;">
-              <span style="background: rgb(43, 104, 236);
+      <div style="width: 500px;" class="annotations-section">
+        <h2>Annotations</h2>
+        <ul>
+          <li v-for="(annotations,index) in annotations" :key="index" style="padding:10px;list-style: none;background: #edecec;">
+            <div>
+              <p>{{ annotations.referenced_text }}</p>
+              <p style="margin-top: 10px;">
+                <span style="background: rgb(43, 104, 236);
     padding: 5px;
     color: rgb(255, 255, 255);
     border-radius: 10px;"> {{ annotations.tags }}</span>
              
-            </p>
-          </div>
+              </p>
+            </div>
           
-        </li>
-      </ul>
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="chatgpt-section" style="display: none;">
       <h2>ChatGPT Advice</h2>
@@ -63,8 +78,8 @@
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="EditannotationVisible = false">取 消</el-button>
-          <el-button type="primary" @click="saveadd">确 定</el-button>
+          <el-button @click="EditannotationVisible = false">Cancel</el-button>
+          <el-button type="primary" @click="saveadd">Confirm</el-button>
         </span>
       </template>
     </el-dialog>
@@ -176,7 +191,7 @@ export default {
       try {
         const response = await axios.post('http://localhost:9999/chatgpt/ask', {
           // prompt: `Which is the largest country?`
-          prompt: `Extract exact 10 keywords from the context below and separate them by commas: ${fileContent.value}`
+          prompt: `give me the date of attack, threat actor and analyst name in json format from the information below, if the information is unknown then say unknown: ${fileContent.value}`
         });
         //console.log("ChatGPT response:", response.data);
         chatGPTResponse.value = response.data;
@@ -256,11 +271,42 @@ export default {
 </script>
 
 <style scoped>
+.annotations-section {
+  margin-top: 100px;  /* 调整此值以更改上边距 */
+}
+
+.header{
+  display: flex;
+  height: 80px;
+  background: rgb(98, 29, 186);
+  justify-content: left;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.header img{
+  height: 60px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+}
+
+.header span {
+  font-size: 30px;
+  color: white;
+}
 .text-labeling {
   display: flex;
   justify-content: space-around;
-  align-items: center;
-  /* 居中对齐 */
+  align-items: flex-start;
+  /*margin-top: 40px; */
   padding: 20px;
 }
 
@@ -310,8 +356,18 @@ button.save-button {
 }
 
 .chatgpt-section {
-  margin-top: 20px;
+  position: fixed;        /* This makes it float */
+  top: 20px;              /* Adjust this value to set the distance from the top */
+  right: 20px;            /* Adjust this value to set the distance from the right side */
+  z-index: 1001;          /* This ensures it stays above other content */
+  width: 300px;           /* Adjust this value based on your preference */
+  background-color: #fff; /* Giving it a background so the content below doesn't show through */
+  border: 1px solid #ccc; /* Optional: gives a border to make it stand out */
+  border-radius: 5px;     /* Rounded corners */
+  padding: 10px;          /* Some padding for aesthetics */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Optional: adds a subtle shadow */
 }
+
 
 .chatgpt-section textarea {
   width: 100%;
@@ -329,4 +385,37 @@ button.save-button {
   border: none;
   cursor: pointer;
 }
+.icon-button {
+  background-color: transparent;
+  border: none;
+  margin-left: 10px;
+  cursor: pointer;
+  width: 34px;  /* Adjusted to 1/3 of assumed original size */
+  height: 34px; /* Adjusted to 1/3 of assumed original size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;  
+  transition: background-color 0.3s ease;
+}
+
+.icon-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.icon-button img {
+  width: 100%;
+  height: 100%;
+}
+.centered-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Just to ensure there is some space between the text and the buttons */
+.centered-content span {
+  margin-right: 10px;
+}
+
 </style>

@@ -1,233 +1,465 @@
 <template>
-  <div>
-    <!-- 顶部 logo 和标题 -->
-    <div class="detail-header">
-      <img src="@/assets/images/Logo.png" alt="Attack Flow Logo" class="detail-logo" />
-      <span class="detail-title">Attack Flow</span>
-    </div>
-
-    <!-- 主内容区域 -->
-    <div class="detail-content-wrapper">
-      <div class="detail-content">
-        <!-- Basic Information -->
-        <div class="basic-info">
-          <h2>{{ documentslist.document_name }}</h2>
-          <p>Date: {{ documentslist.updatedAt }}</p>
-          <p>Author: {{ documentslist.account }}</p>
-          <p>Annotator: {{documentslist.account }}</p>
-          <p>Description: {{ documentslist.referenced_text }}</p>
-
-          <!-- 链式表格部分 -->
-          <!--div v-if="annotationData">
-            
-          </div>
-          <div v-else class="not-found">
-            Database Not Found
-          </div-->
-        </div>
-
-
-        <!-- 右侧部分 -->
-        <div class="right-section">
-          <div class="version-select">
-            <label for="version">Select version:</label>
-            <select id="version">
-              <!-- 示例版本数据，可能需要从API或其他数据源获取版本数据 -->
-              <option v-for="version in versions" :key="version">{{ version }}</option>
-            </select>
-          </div>
-
-          <div class="download-section">
-            <button>Download original report</button>
-            <button>Download attack flow model</button>
-          </div>
-
-          <button class="annotation-btn">Create new annotation</button>
-
-          <!-- 评论功能（示例结构） -->
-          <div class="comments-section">
-            <h3>Comments</h3>
-            <!-- 评论输入 -->
-            <textarea placeholder="Add a comment..."></textarea>
-            <button>Submit Comment</button>
-
-            <!-- 示例评论列表 -->
-            <div v-for="comment in comments" :key="comment.id" class="comment">
-              <p>{{ comment.text }}</p>
-              <span>{{ comment.author }} - {{ comment.date }}</span>
-            </div>
-          </div>
-        </div>
-
+  <div class="header">
+    <div class="header-content">
+      <img src="@/assets/images/Logo.png" alt="">
+      <div class="centered-content">
+        <span><strong>Attack Flow</strong></span>
+        <button class="icon-button" title="Edit"><img src="@/assets/marker.png" alt="Edit Icon"></button>
+        <button class="icon-button" title="Download"><img src="@/assets/download.png" alt="Download Icon"></button>
       </div>
     </div>
   </div>
+  <div class="text-labeling">
+    <div class="text-display">
+
+      <div style="position: fixed;top: 100px;z-index: 999;">
+        <button class="save-button" @click="openEditannotation">Edit annotation</button>
+      </div>
+      <div class="highlighted-text" @mouseup="highlightText" id="htext" style="margin-top: 120px;">
+        <p v-html="highlightedText"></p>
+      </div>
+    </div>
+    <div class="chatgpt-section" style="display: none;">
+      <h2>ChatGPT Meta</h2>
+      <textarea v-model="chatGPTResponse" readonly></textarea>
+    </div>
+    <div style="width: 500px;">
+      <div style="width: 500px;" class="annotations-section">
+
+        <h2>Annotations</h2>
+        <ul>
+          <li v-for="(item,index) in documentslist" :key="index" style="padding:10px;list-style: none;background: #edecec;">
+
+            <div>
+              <p>{{ item.referenced_text }}</p>
+              <p style="margin-top: 10px;">
+                <span style="background: rgb(43, 104, 236);
+    padding: 5px;
+    color: rgb(255, 255, 255);
+    border-radius: 10px;"> {{ item.tags }}</span>
+
+              </p>
+            </div>
+
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="chatgpt-section" style="display: none;">
+      <h2>ChatGPT Advice</h2>
+      <textarea v-model="chatGPTResponse" readonly></textarea>
+    </div>
+    <div style="display: none;">
+      <button class="save-button" @click="saveHighlightedKeywords">Save</button>
+
+    </div>
+    <br>
+
+
+    <div class="keyword-list" style="display: none;">
+      <h2>Keywords</h2>
+      <ul>
+        <li v-for="(keyword, index) in keywords" :key="index">{{ keyword }}</li>
+      </ul>
+    </div>
+    <el-dialog title="Edit annotation" v-model="EditannotationVisible" width="40%">
+      <el-form label-width="90px">
+        <el-form-item label="referenced_text">
+          <textarea v-model="form.referenced_text" style="width:40%;height: 200px;"></textarea>
+        </el-form-item>
+        <el-form-item label="tags">
+          <el-select placeholder="Please select labels" v-model="huixianname" clearable @clear="handleClear"
+            ref="selectUpResId" style="width:100%;">
+            <el-option hidden :key="1"></el-option><!--这个必不可少否则显示不出来下拉数据-->
+            <el-tree :data="rData" node-key="id" default-expand-all :props="defaultProps" :default-checked-keys="rNames"
+              @check="handleNodeClick" show-checkbox ref="treeForm">
+            </el-tree>
+          </el-select>
+        </el-form-item>
+
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="EditannotationVisible = false">Cancel</el-button>
+          <el-button type="primary" @click="saveadd">Confirm</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
 </template>
 
-<script setup>
-import { ref,reactive } from 'vue';
+<script>
+import { ref, computed, onMounted, reactive } from "vue";
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 
-const route = useRoute();
+export default {
+  props: {
+    router: {
+      type: Object,
+    },
+  },
+  setup(props) {
+    const route = useRoute();
+    const filePath = ref(route.query.filePath || "");
+    const document_no = ref(route.query.document_no || "");
+    const document_id = ref(route.query.document_id || "");
+    //const tags = ref(route.query.tags || "");
+    const fileContent = ref("");
+    const keywords = ref([]);
+    const selectedText = ref("");
+    const chatGPTResponse = ref("");
+    const EditannotationVisible = ref(false);
+    const annotations = ref([]);
 
-const params = ref(route.params || "");
-console.log("params:"+JSON.stringify(params));
-console.log("params:"+JSON.parse(JSON.stringify(params))._value.id);
-const document_id = params._value.id
-let form = reactive({
-  id: document_id
-});
-const post = ref({
-  name: "",
-  uploadDate: "",
-  author: "",
-  annotator: "",
-  description: ""
-});
+    let form = reactive({
+      referenced_text: "",
+      document_no: "",
+      uid: "",
+      tags: "",
+      path: "",
+      document_id: ""
+    });
 
-const documentslist = ref([])
+    var huixianname = ref('');
+    var huixianarr = ref([]);
+    var ids = ref([]);
+
+    const rData = ref([]);
+
+    var rNames = ref([]);
+    const documentslist = ref([])
+
+    let form2 = reactive({
+      id: document_id,
+      document_no: document_no
+    });
 
 
-axios.post('http://localhost:9999/documents/documentsbyid', form)
-  .then(res => {
-    //successfully login
-    console.log(res.data.documents[0]);
-    documentslist.value = res.data.documents[0]
-    post.name = res.data.documents[0].document_name
-    post.uploadDate = res.data.documents[0].updatedAt
-    console.log(post);
+    const getTags = () => {
 
-  })
-  .catch(error => {
-    console.log(error);
-  })
-// 示例数据
+      axios.post('http://localhost:9999/tagslist')
+        .then(res => {
+          rData.value = res.data.tags;
+          console.log(rData.value)
 
-const versions = ['v1.0', 'v1.1', 'v2.0']; // 示例
-const comments = [
-  { id: 1, text: 'This is a comment.', author: 'User A', date: '2023-09-01' },
-  // ... 其他评论数据
-];
+        })
+        .catch(error => {
+          //fail to login
+        })
+
+    };
+    getTags();
+
+    const saveadd = () => {
+      const uid = localStorage.getItem("uid");
+      form['document_no'] = document_no.value
+      form['uid'] = uid
+      form['tags'] = huixianname.value
+      form['path'] = filePath.value
+      form['document_id'] = document_id.value
+      axios.post('http://localhost:9999/documents/addAnnotation', form)
+        .then(res => {
+          console.log(res.data.documents)
+          EditannotationVisible.value = false;
+          annotations.value = res.data.annotations
+          console.log(annotations.value)
+          //window.location.reload()
+
+        })
+        .catch(error => {
+          //fail to login
+        })
+    };
+
+
+    // 节点点击事件
+    const handleNodeClick = (data, lst,) => {
+
+      let arr = ref([]), name = ref([]);
+      lst.checkedNodes.forEach(item => {//过滤拿到选中的deptName
+        //console.log(item);
+        name.value.push(item.name)
+      });
+      lst.checkedNodes.forEach(item => {//过滤拿到选中的name
+        arr.value.push(item.id)
+
+      });
+      rNames.value = name
+      ids.value = arr
+      huixianname.value = JSON.stringify(name._value).replace(/(\")/g, "").replace("[", '').replace("]", '');
+
+      console.log(huixianname.value);
+    };
+    const handleClear = () => {
+      ids.value = '';
+      ids2.value = '';
+      huixianname.value = '';
+      huixianname2.value = '';
+    };
+
+    async function askChatGPT() {
+      try {
+        const response = await axios.post('http://localhost:9999/chatgpt/ask', {
+          // prompt: `Which is the largest country?`
+          prompt: `give me the date of attack, threat actor and analyst name in json format from the information below, if the information is unknown then say unknown: ${fileContent.value}`
+        });
+        //console.log("ChatGPT response:", response.data);
+        chatGPTResponse.value = response.data;
+      } catch (error) {
+        console.error('Error calling backend:', error);
+      }
+    }
+
+    // 当组件加载时，请求文件内容
+    onMounted(async () => {
+      axios.post('http://localhost:9999/documents/documentsbyno', form2)
+        .then(res => {
+          //successfully login
+          console.log(7777);
+          documentslist.value = res.data.documents
+          keywords.value = []
+          //keyword.value = res.data.documents[0].referenced_text
+          res.data.documents.forEach((item) => {
+            keywords.value.push(item.referenced_text);
+          });
+          //keywords.value.push(documentslist.value.referenced_text);
+          console.log(keywords.value);
+        })
+        .catch(error => {
+          console.log(error);
+        })
+      const response = await fetch(`http://localhost:9999/upload/getFileContent?filePath=${filePath.value}`);
+      const data = await response.json();
+      fileContent.value = data.fileContent;
+      askChatGPT();  // 自动获取答案
+    });
+
+    const highlightedText = computed(() => {
+      // 高亮关键词
+      let highlighted = fileContent.value; // 使用接收到的文件内容
+
+      //keywords.value.push(documentslist.value.referenced_text);
+      keywords.value.forEach((keyword) => {
+        const regex = new RegExp(keyword, "g");
+        highlighted = highlighted.replace(regex, '<span style="background:#FAE20F">' + keyword + '</span>');
+      });
+      return highlighted;
+    });
+
+    const highlightText = () => {
+      // 高亮鼠标选中的文本
+      //const selection = window.getSelection();
+      //selectedText.value = selection.toString();
+      var selectObj = window.getSelection();
+      var changeText = selectObj.toString();
+      var oldHtml = document.getElementById('htext').innerHTML;
+      var newHtml = oldHtml.replace(changeText, '<span style="background:#FAE20F">' + changeText + '</span>');
+      selectedText.value = changeText;
+      form.referenced_text = changeText;
+      document.getElementById('htext').innerHTML = newHtml;
+    };
+
+    const saveHighlightedKeywords = () => {
+      // 保存鼠标选中的文本为关键词
+      if (selectedText.value.trim() !== "") {
+        keywords.value.push(selectedText.value);
+        selectedText.value = "";
+      }
+    };
+
+    const openEditannotation = () => {
+      EditannotationVisible.value = true;
+    };
+
+
+
+    return {
+      fileContent,
+      keywords,
+      selectedText,
+      highlightedText,
+      highlightText,
+      saveHighlightedKeywords,
+      chatGPTResponse,
+      askChatGPT,
+      EditannotationVisible,
+      openEditannotation,
+      form,
+      defaultProps: {
+        children: 'children',
+        label: 'name',
+        value: "id"
+      },
+      huixianname,
+      handleClear, saveadd,
+      rData, handleNodeClick, huixianarr, annotations, documentslist
+    };
+  },
+};
 </script>
 
-
 <style scoped>
-/* 顶部导航栏样式 */
-.detail-header {
+.annotations-section {
+  margin-top: 100px;
+  /* 调整此值以更改上边距 */
+}
+
+.header {
   display: flex;
+  height: 80px;
+  background: rgb(98, 29, 186);
+  justify-content: left;
   align-items: center;
-  background-color: rgb(98, 29, 186);
-  padding: 10px 20px;
+  cursor: pointer;
   width: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1001;
+  z-index: 1000;
 }
 
-.detail-logo {
-  height: 50px;
+.header img {
+  height: 60px;
 }
 
-.detail-title {
+.header-content {
+  display: flex;
+  align-items: center;
+}
+
+.header span {
   font-size: 30px;
   color: white;
-  margin-left: 20px;
 }
 
-.detail-content-wrapper {
-  padding-top: 120px;
-  /* 根据头部的大小进行调整 */
-}
-
-/* 详情页内容 */
-.detail-content {
-  padding: 20px 5%;
+.text-labeling {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
+  align-items: flex-start;
+  /*margin-top: 40px; */
+  padding: 20px;
 }
 
-.basic-info {
-  width: 70%;
-  /* 设置左侧基本信息的宽度 */
-  margin-right: 5%;
-  /* 与右侧部分的间隔 */
+.text-display {
+  flex: 2;
 }
 
-.not-found {
-  text-align: center;
-  margin-top: 50px;
-  font-size: 24px;
-  color: red;
+.highlighted-text {
+  border: 1px solid #ccc;
+  padding: 10px;
+  background-color: #f7f7f7;
+  border-radius: 5px;
+  position: relative;
 }
 
-/* 基本信息样式 */
-h2 {
-  color: rgb(28, 125, 238);
+button.save-button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  /* 增大按钮大小 */
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.keyword-list {
+  flex: 1;
+  padding-left: 20px;
+}
+
+.keyword-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.keyword-list li {
+  margin-bottom: 5px;
   font-weight: bold;
 }
 
-/* 右侧部分样式 */
-.right-section {
-  width: 25%;
-  padding: 20px;
-  background-color: #f2f2f2;
-  /* 右侧灰色背景 */
+.highlight {
+  background-color: yellow;
+}
+
+.text-display p {
+  white-space: pre-wrap;
+}
+
+.chatgpt-section {
+  position: fixed;
+  /* This makes it float */
+  top: 20px;
+  /* Adjust this value to set the distance from the top */
+  right: 20px;
+  /* Adjust this value to set the distance from the right side */
+  z-index: 1001;
+  /* This ensures it stays above other content */
+  width: 300px;
+  /* Adjust this value based on your preference */
+  background-color: #fff;
+  /* Giving it a background so the content below doesn't show through */
+  border: 1px solid #ccc;
+  /* Optional: gives a border to make it stand out */
   border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 120px;
-  /* 根据头部的大小进行调整 */
-}
-
-.version-select,
-.download-section,
-.comments-section {
-  margin-bottom: 20px;
-}
-
-.version-select label {
-  display: block;
-  margin-bottom: 10px;
-}
-
-.download-section button,
-.annotation-btn,
-.comments-section button {
-  display: block;
-  width: 100%;
+  /* Rounded corners */
   padding: 10px;
-  margin-top: 10px;
-  border: none;
+  /* Some padding for aesthetics */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Optional: adds a subtle shadow */
+}
+
+
+.chatgpt-section textarea {
+  width: 100%;
+  height: 100px;
+  padding: 10px;
+  border: 1px solid #ccc;
   border-radius: 5px;
-  background-color: rgb(28, 125, 238);
+}
+
+.chatgpt-section button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background-color: #007bff;
   color: white;
+  border: none;
   cursor: pointer;
-  text-align: center;
 }
 
-.annotation-btn {
-  background-color: rgb(98, 29, 186);
-  /* 紫色按钮 */
-}
-
-.comments-section textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
+.icon-button {
+  background-color: transparent;
+  border: none;
+  margin-left: 10px;
+  cursor: pointer;
+  width: 34px;
+  /* Adjusted to 1/3 of assumed original size */
+  height: 34px;
+  /* Adjusted to 1/3 of assumed original size */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 5px;
-  resize: none;
+  transition: background-color 0.3s ease;
 }
 
-.comment {
-  border-top: 1px solid #ddd;
-  padding-top: 10px;
-  margin-top: 20px;
+.icon-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.comment span {
-  display: block;
-  font-size: 0.8em;
-  color: #666;
-}</style>
+.icon-button img {
+  width: 100%;
+  height: 100%;
+}
+
+.centered-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Just to ensure there is some space between the text and the buttons */
+.centered-content span {
+  margin-right: 10px;
+}
+</style>
